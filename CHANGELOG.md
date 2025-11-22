@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+### Fixed
+- Corrected GitHub Actions release workflow to properly auto-detect the plugin main file and avoid matching other plugin headers.
+
+---
+
 ## 1.0.0
 ### Added
 - Initial release of **BRS Auto Apply Coupon**

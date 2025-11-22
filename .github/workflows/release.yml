@@ -28,7 +28,7 @@ jobs:
       - name: Determine tag/version and plugin slug
         shell: bash
         run: |
-          # Determine the tag
+          # Determine tag
           TAG_INPUT="${{ inputs.tag }}"
           if [ -n "$TAG_INPUT" ]; then
             TAG_NAME="$TAG_INPUT"
@@ -40,22 +40,20 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "VERSION=${TAG_NAME#v}" >> $GITHUB_ENV
 
-          # Detect plugin main file: first PHP file containing "Plugin Name:"
-          MAIN_FILE=$(grep -rl "Plugin Name:" --include="*.php" ./ | head -n 1)
+          # Detect plugin main file ONLY in root, NOT includes/
+          MAIN_FILE=$(find . -maxdepth 1 -type f -name "*.php" -exec grep -l "Plugin Name:" {} \; | head -n 1)
 
           if [ -z "$MAIN_FILE" ]; then
-            echo "ERROR: Could not detect plugin main file with 'Plugin Name:' header."
+            echo "ERROR: No plugin main file found in root directory."
             exit 1
           fi
 
           echo "Detected plugin main file: $MAIN_FILE"
 
-          # Extract filename without path or extension
           FILE_NAME=$(basename "$MAIN_FILE")
           PLUGIN_SLUG="${FILE_NAME%.php}"
 
           echo "PLUGIN_SLUG=$PLUGIN_SLUG" >> $GITHUB_ENV
-          echo "Detected plugin slug: $PLUGIN_SLUG"
 
       - name: Checkout the specified tag (for manual or release builds)
         if: env.TAG_NAME != ''
