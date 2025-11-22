@@ -35,3 +35,15 @@ The coupon will be automatically applied to the customer’s cart within the act
 ## Development
 The plugin is organized as follows:
 
+brs-auto-apply-coupon/
+├── brs-auto-apply-coupon.php
+└── includes/
+├── class-brs-admin.php
+└── class-brs-coupon-handler.php
+
+## License
+This project is licensed under the GPL v2 (see `license.txt`).
+
+## Author
+Big Red SEO  
+https://bigredseo.com
