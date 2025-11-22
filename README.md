@@ -35,17 +35,6 @@ All other coupon rules (categories, limits, amounts, usage restrictions) are con
 
 The coupon will be automatically applied to the customer’s cart during the configured active date window.
 
-## Development
-The plugin is organized as follows:
-brs-auto-apply-coupon/
-├── brs-auto-apply-coupon.php
-├── plugin-update-checker/
-│ ├── plugin-update-checker.php
-│ └── Puc/
-└── includes/
-├── class-brs-admin.php
-└── class-brs-coupon-handler.php
-
 ## Author
 Big Red SEO  
 https://www.bigredseo.com
