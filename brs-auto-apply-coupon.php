@@ -55,3 +55,17 @@ add_action( 'plugins_loaded', function() {
     new BRS_Admin_Settings();
     new BRS_Coupon_Handler();
 });
+
+/**
+ * Add Settings link on the Plugins screen
+ */
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function( $links ) {
+
+    $settings_url = admin_url( 'admin.php?page=brs-auto-apply-coupon' );
+
+    $settings_link = '<a href="' . esc_url( $settings_url ) . '">Settings</a>';
+
+    array_unshift( $links, $settings_link );
+
+    return $links;
+});
