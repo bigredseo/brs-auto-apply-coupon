@@ -72,16 +72,21 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), function( $lin
     return $links;
 });
 
-// Check Github for new releases
+
+// Check GitHub for new releases
 if ( is_admin() ) {
     require_once __DIR__ . '/plugin-update-checker/plugin-update-checker.php';
 
-    $update_checker = Puc_v4_Factory::buildUpdateChecker(
-        'https://github.com/BigRedSEO/brs-auto-apply-coupon',
+    $update_checker = \YahnisElsts\PluginUpdateChecker\v5p6\PucFactory::buildUpdateChecker(
+        'https://github.com/BigRedSEO/brs-auto-apply-coupon.git',
         __FILE__,
         'brs-auto-apply-coupon'
     );
 
-    // Optional: enable GitHub releases
-    $update_checker->getVcsApi()->enableReleaseAssets();
+    $vcs_api = $update_checker->getVcsApi();
+    if ( $vcs_api ) {
+        $vcs_api->enableReleaseAssets();
+    }
+
 }
+
