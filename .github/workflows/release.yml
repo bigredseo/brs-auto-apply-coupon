@@ -25,9 +25,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Determine tag/version
+      - name: Determine tag/version and plugin slug
         shell: bash
         run: |
+          # Determine the tag
           TAG_INPUT="${{ inputs.tag }}"
           if [ -n "$TAG_INPUT" ]; then
             TAG_NAME="$TAG_INPUT"
@@ -35,9 +36,26 @@ jobs:
             TAG_NAME="${GITHUB_REF#refs/tags/}"
             if [ -z "$TAG_NAME" ]; then TAG_NAME="${{ github.event.release.tag_name }}"; fi
           fi
+
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "VERSION=${TAG_NAME#v}" >> $GITHUB_ENV
-          echo "PLUGIN_SLUG=brs-block-fake-orders" >> $GITHUB_ENV
+
+          # Detect plugin main file: first PHP file containing "Plugin Name:"
+          MAIN_FILE=$(grep -rl "Plugin Name:" --include="*.php" ./ | head -n 1)
+
+          if [ -z "$MAIN_FILE" ]; then
+            echo "ERROR: Could not detect plugin main file with 'Plugin Name:' header."
+            exit 1
+          fi
+
+          echo "Detected plugin main file: $MAIN_FILE"
+
+          # Extract filename without path or extension
+          FILE_NAME=$(basename "$MAIN_FILE")
+          PLUGIN_SLUG="${FILE_NAME%.php}"
+
+          echo "PLUGIN_SLUG=$PLUGIN_SLUG" >> $GITHUB_ENV
+          echo "Detected plugin slug: $PLUGIN_SLUG"
 
       - name: Checkout the specified tag (for manual or release builds)
         if: env.TAG_NAME != ''
