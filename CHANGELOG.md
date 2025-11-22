@@ -8,6 +8,9 @@
 
 ### Updated
 - Improved metadata in the main plugin file to reflect correct author URL.
+- Updated Plugin Update Checker integration to use namespaced v5.6 classes.
+- Corrected GitHub repository URL to include `.git` suffix.
+- Added conditional handling for VCS API initialization to avoid fatal errors.
 
 ---
 
