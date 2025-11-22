@@ -108,9 +108,36 @@ class BRS_Admin_Settings {
     }
 
     public function settings_page_html() {
+        // Determine a readable timezone label
+        $timezone = get_option( 'timezone_string' );
+        if ( empty( $timezone ) ) {
+            $offset = get_option( 'gmt_offset' );
+            $timezone = 'UTC' . ( $offset ? sprintf( '%+g', $offset ) : '' );
+        }
+
+        // Format server-local timestamp without seconds
+        $now_local = date_i18n( 'm/d/Y H:i', current_time( 'timestamp' ) );
+
         ?>
         <div class="wrap">
             <h1>Auto Apply Coupon Settings</h1>
+
+            <div class="notice notice-info" style="max-width: 800px;">
+                <p>
+                    <strong>Current server time:</strong>
+                    <?php echo esc_html( $now_local ); ?>
+                </p>
+                <p>
+                    <strong>Timezone:</strong>
+                    <?php echo esc_html( $timezone ); ?>
+                </p>
+                <p class="description">
+                    Use this time and timezone when setting the <strong>Start Date/Time</strong> and
+                    <strong>End Date/Time</strong> fields below. The coupon will only auto-apply while
+                    the current server time is between those values.
+                </p>
+            </div>
+
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'brs_auto_apply_coupon_settings_group' );
@@ -121,4 +148,5 @@ class BRS_Admin_Settings {
         </div>
         <?php
     }
+
 }
