@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3
+### Added
+- Display current server time and timezone on settings screen.
+- Improved formatting (MM/DD/YYYY, no seconds) for readability.
+
+### Changed
+- Settings page now uses a unified notice box to present time information more clearly.
+
+---
+
 ## 1.0.2
 ### Added
 - Added "Settings" link to the plugin row on the Plugins screen.
