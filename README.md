@@ -6,8 +6,10 @@ All other coupon rules (categories, limits, amounts, usage restrictions) are con
 
 ## Features
 - Auto-apply coupon during a defined date/time window  
-- Admin settings page under WooCommerce  
+- Admin settings page under WooCommerce (or Marketing depending on WC Admin)  
 - Customizable success message  
+- “Settings” link directly in the Plugins list  
+- Built-in GitHub-based automatic updates via Plugin Update Checker (PUC v5.6)  
 - Clean separation of logic (admin and handler classes)  
 - Requires WooCommerce  
 - Safely self-deactivates if WooCommerce is not active  
@@ -22,6 +24,7 @@ All other coupon rules (categories, limits, amounts, usage restrictions) are con
 2. Activate the plugin in **Plugins → Installed Plugins**
 3. Ensure WooCommerce is active
 4. Navigate to **WooCommerce → Auto Coupon Settings** to configure
+5. (Optional) GitHub automatic updates are enabled when the plugin detects new GitHub releases
 
 ## Usage
 1. Create a WooCommerce coupon  
@@ -30,20 +33,19 @@ All other coupon rules (categories, limits, amounts, usage restrictions) are con
 4. Enter a custom success message  
 5. Save changes  
 
-The coupon will be automatically applied to the customer’s cart within the active date window.
+The coupon will be automatically applied to the customer’s cart during the configured active date window.
 
 ## Development
 The plugin is organized as follows:
-
 brs-auto-apply-coupon/
 ├── brs-auto-apply-coupon.php
+├── plugin-update-checker/
+│ ├── plugin-update-checker.php
+│ └── Puc/
 └── includes/
 ├── class-brs-admin.php
 └── class-brs-coupon-handler.php
 
-## License
-This project is licensed under the GPL v2 (see `license.txt`).
-
 ## Author
 Big Red SEO  
-https://bigredseo.com
+https://www.bigredseo.com
