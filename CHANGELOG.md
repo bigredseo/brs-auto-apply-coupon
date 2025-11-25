@@ -6,6 +6,9 @@
 - Added customer notice when coupon cannot be applied due to product restrictions.
 - Added mixed-cart detection to notify customers when some cart items are excluded from coupon discounts.
 - Improved stability by preventing repeated re-application loops during validation.
+- Added WooCommerce session–based notice tracking to prevent duplicate notices on checkout.
+- Added logic to clear stale notice flags when coupon becomes valid again.
+- Improved handling of excluded-only carts by preventing WooCommerce’s native invalid-coupon error from appearing.
 
 ---
 
