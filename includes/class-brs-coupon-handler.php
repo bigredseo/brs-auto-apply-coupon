@@ -16,7 +16,12 @@ class BRS_Coupon_Handler {
         ] );
     }
 
-    public function auto_apply_coupon() {
+    public function auto_apply_coupon() {      
+
+        // Prevent re-application in same request after failed validation
+        if ( ! empty( $GLOBALS['brs_auto_apply_coupon_skip'] ) ) {
+            return;
+        }
 
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) return;
         if ( empty( WC()->cart ) ) return;
@@ -42,5 +47,89 @@ class BRS_Coupon_Handler {
                 wc_add_notice( esc_html( $s['notice_message'] ), 'success' );
             }
         }
+
+        // Validation of the auto-applied coupon
+        if ( WC()->cart->has_discount( $coupon_code ) ) {
+
+            $coupon = new WC_Coupon( $coupon_code );
+            $valid  = true;
+            $error  = '';
+
+            try {
+                $coupon->is_valid(); // WooCommerce will throw an exception if invalid
+            } catch ( WC_Coupon_Exception $e ) {
+                $valid = false;
+                $error = $e->getMessage();
+            }
+
+            if ( ! $valid ) {
+
+                // Remove invalid coupon so checkout is not blocked
+                WC()->cart->remove_coupon( $coupon_code );
+
+                // Show friendly notice explaining why it couldn't be applied
+                wc_add_notice(
+                    sprintf(
+                        'A %s discount is available, but it could not be applied because: %s',
+                        esc_html( ucfirst( $coupon_code ) ),
+                        esc_html( $error )
+                    ),
+                    'notice'
+                );
+
+                // Prevent auto-apply loop
+                $GLOBALS['brs_auto_apply_coupon_skip'] = true;
+
+                return;
+            }
+        }
+
+        // Mixed cart (partial exclusion) notice
+        if ( WC()->cart->has_discount( $coupon_code ) ) {
+
+            $coupon = new WC_Coupon( $coupon_code );
+
+            $excluded_ids        = $coupon->get_excluded_product_ids();
+            $excluded_cats       = $coupon->get_excluded_product_categories();
+            $exclude_sale_items  = $coupon->get_exclude_sale_items();
+
+            $found_excluded = false;
+
+            foreach ( WC()->cart->get_cart() as $cart_item ) {
+                $product_id = $cart_item['product_id'];
+                $product    = wc_get_product( $product_id );
+
+                // 1. Excluded by product ID
+                if ( in_array( $product_id, $excluded_ids, true ) ) {
+                    $found_excluded = true;
+                    break;
+                }
+
+                // 2. Excluded by category
+                $terms = wp_get_post_terms( $product_id, 'product_cat', [ 'fields' => 'ids' ] );
+                if ( array_intersect( $terms, $excluded_cats ) ) {
+                    $found_excluded = true;
+                    break;
+                }
+
+                // 3. Excluded if on sale
+                if ( $exclude_sale_items && $product->is_on_sale() ) {
+                    $found_excluded = true;
+                    break;
+                }
+            }
+
+            if ( $found_excluded ) {
+                wc_add_notice(
+                    sprintf(
+                        'Some items in your cart do not qualify for the %s discount. The coupon was applied only to eligible products.',
+                        esc_html( ucfirst( $coupon_code ) )
+                    ),
+                    'notice'
+                );
+            }
+        }
+
+
     }
 }
