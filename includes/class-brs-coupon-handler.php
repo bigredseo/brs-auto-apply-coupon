@@ -70,6 +70,51 @@ class BRS_Coupon_Handler {
 
         if ( ! WC()->cart->has_discount( $coupon_code ) ) {
 
+            // Pre-check: does this cart contain ONLY excluded items?
+            $coupon = new WC_Coupon( $coupon_code );
+            $valid_for_any_item = false;
+
+            foreach ( WC()->cart->get_cart() as $cart_item ) {
+                $product_id = $cart_item['product_id'];
+                $product = wc_get_product( $product_id );
+
+                // Skip excluded IDs
+                if ( in_array( $product_id, $coupon->get_excluded_product_ids(), true ) ) {
+                    continue;
+                }
+
+                // Skip excluded categories
+                $terms = wp_get_post_terms( $product_id, 'product_cat', [ 'fields' => 'ids' ] );
+                if ( array_intersect( $terms, $coupon->get_excluded_product_categories() ) ) {
+                    continue;
+                }
+
+                // Skip sale items if coupon excludes sale items
+                if ( $coupon->get_exclude_sale_items() && $product->is_on_sale() ) {
+                    continue;
+                }
+
+                // If we reached here → at least one valid product exists
+                $valid_for_any_item = true;
+                break;
+            }
+
+            if ( ! $valid_for_any_item ) {
+                // All items are excluded. Do NOT apply coupon.
+                $no_items_msg = sprintf(
+                    'A %s discount is available, but none of the items in your cart qualify for this promotion.',
+                    esc_html( ucfirst( $coupon_code ) )
+                );
+
+                if ( ! $this->brs_notice_session_flag( 'brs_no_items_notice' ) ) {
+                    wc_add_notice( $no_items_msg, 'notice' );
+                }
+                return;
+            }
+            
+            // Reset stored notice flags when coupon becomes valid again
+            WC()->session->__unset( 'brs_no_items_notice' );
+            WC()->session->__unset( 'brs_mixed_notice' );            
             $result = WC()->cart->apply_coupon( $coupon_code );
 
             if ( ! is_wp_error( $result ) && ! headers_sent() ) {
