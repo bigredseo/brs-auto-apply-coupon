@@ -16,6 +16,35 @@ class BRS_Coupon_Handler {
         ] );
     }
 
+    // Hide duplicate notices
+    private function brs_notice_exists( $message ) {
+        $notices = wc_get_notices();
+
+        if ( empty( $notices ) ) {
+            return false;
+        }
+
+        foreach ( $notices as $notice_group ) {
+            foreach ( $notice_group as $notice ) {
+                if ( isset( $notice['notice'] ) && $notice['notice'] === $message ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Tracks whether a specific notice has already been shown in the current WC session.
+    // Returns true if the notice was already displayed, otherwise sets the flag and returns false.
+    private function brs_notice_session_flag( $key ) {
+        $flag = WC()->session->get( $key );
+        if ( $flag ) {
+            return true;
+        }
+        WC()->session->set( $key, true );
+        return false;
+    }
+
     public function auto_apply_coupon() {      
 
         // Prevent re-application in same request after failed validation
