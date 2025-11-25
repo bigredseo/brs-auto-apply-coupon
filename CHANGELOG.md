@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.4
+### Added
+- Added validation to prevent auto-applying invalid coupons that block checkout.
+- Added customer notice when coupon cannot be applied due to product restrictions.
+- Added mixed-cart detection to notify customers when some cart items are excluded from coupon discounts.
+- Improved stability by preventing repeated re-application loops during validation.
+
+---
+
 ## 1.0.3
 ### Added
 - Display current server time and timezone on settings screen.

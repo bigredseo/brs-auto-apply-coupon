@@ -2,7 +2,7 @@
 /*
 Plugin Name:       BRS Auto Apply Coupon
 Description:       Automatically applies a WooCommerce coupon during a configured date/time window. Includes admin settings. Requires WooCommerce.
-Version:           1.0.3
+Version:           1.0.4
 Author:            Big Red SEO
 Author URI:        https://www.bigredseo.com/
 Requires Plugins:  woocommerce
