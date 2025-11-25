@@ -115,6 +115,8 @@ class BRS_Coupon_Handler {
             // Reset stored notice flags when coupon becomes valid again
             WC()->session->__unset( 'brs_no_items_notice' );
             WC()->session->__unset( 'brs_mixed_notice' );            
+
+            // Now it's safe to apply the coupon
             $result = WC()->cart->apply_coupon( $coupon_code );
 
             if ( ! is_wp_error( $result ) && ! headers_sent() ) {
@@ -138,24 +140,27 @@ class BRS_Coupon_Handler {
 
             if ( ! $valid ) {
 
-                // Remove invalid coupon so checkout is not blocked
+                // Remove WC's default invalid-coupon notice
+                wc_clear_notices();
+
+                // Remove coupon so checkout is not blocked
                 WC()->cart->remove_coupon( $coupon_code );
 
-                // Show friendly notice explaining why it couldn't be applied
-                wc_add_notice(
-                    sprintf(
-                        'A %s discount is available, but it could not be applied because: %s',
-                        esc_html( ucfirst( $coupon_code ) ),
-                        esc_html( $error )
-                    ),
-                    'notice'
+                // Add our clean notice
+                $no_items_msg = sprintf(
+                    'A %s discount is available, but none of the items in your cart qualify for this promotion.',
+                    esc_html( ucfirst( $coupon_code ) )
                 );
 
-                // Prevent auto-apply loop
+                if ( ! $this->brs_notice_session_flag( 'brs_no_items_notice' ) ) {
+                    wc_add_notice( $no_items_msg, 'notice' );
+                }
+
                 $GLOBALS['brs_auto_apply_coupon_skip'] = true;
 
                 return;
             }
+
         }
 
         // Mixed cart (partial exclusion) notice
@@ -194,16 +199,16 @@ class BRS_Coupon_Handler {
             }
 
             if ( $found_excluded ) {
-                wc_add_notice(
-                    sprintf(
-                        'Some items in your cart do not qualify for the %s discount. The coupon was applied only to eligible products.',
-                        esc_html( ucfirst( $coupon_code ) )
-                    ),
-                    'notice'
+                $mixed_msg = sprintf(
+                    'Some items in your cart do not qualify for the %s discount. The coupon was applied only to eligible products.',
+                    esc_html( ucfirst( $coupon_code ) )
                 );
+
+                if ( ! $this->brs_notice_session_flag( 'brs_mixed_notice' ) ) {
+                    wc_add_notice( $mixed_msg, 'notice' );
+                }
+
             }
         }
-
-
     }
 }
